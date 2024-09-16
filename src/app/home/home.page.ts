@@ -1,10 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import Map from '@arcgis/core/Map';
 import MapView from '@arcgis/core/views/MapView';
+import { Geolocation } from '@capacitor/geolocation';
 import Graphic from '@arcgis/core/Graphic';
 import Point from '@arcgis/core/geometry/Point';
-import { Geolocation } from '@capacitor/geolocation';
-import PictureMarkerSymbol from '@arcgis/core/symbols/PictureMarkerSymbol';
+import SimpleMarkerSymbol from '@arcgis/core/symbols/SimpleMarkerSymbol';
 
 @Component({
   selector: 'app-home',
@@ -13,54 +13,50 @@ import PictureMarkerSymbol from '@arcgis/core/symbols/PictureMarkerSymbol';
 })
 export class HomePage implements OnInit {
 
-  constructor() { }
-  
+  constructor() {}
   private latitude: number | any;
-  private longitude: number | any;
+  private longtitude: number| any;
 
   public async ngOnInit() {
-    try {
-      // Mendapatkan posisi saat ini
-      const position = await Geolocation.getCurrentPosition();
-      this.latitude = position.coords.latitude;
-      this.longitude = position.coords.longitude;
+    // this.latitude = 110.39822652665721;
+    // this.latitude= -7.80301783078655;
+    const position = await Geolocation.getCurrentPosition();
+    this.latitude = position.coords.latitude;
+    this.longtitude = position.coords.longitude;
+   const map = new Map({
+    basemap: "topo-vector"
+   });
 
-      // Membuat peta dan tampilan peta
-      const map = new Map({
-        basemap: "topo-vector"
-      });
-      
-      const view = new MapView({
-        container: "container",  // Pastikan elemen dengan id 'container' ada di HTML
-        map: map,
-        zoom: 13,
-        center: [this.longitude, this.latitude]  // Set pusat peta ke lokasi saat ini
-      });
+   const view = new MapView({
+    container: "container",
+    map: map,
+    zoom: 12,
+    center: [this.longtitude, this.latitude]
+   })
 
-      // Membuat titik lokasi saat ini
-      const point = new Point({
-        longitude: this.longitude,
-        latitude: this.latitude
-      });
-
-      // Membuat simbol marker
-      const markerSymbol = new PictureMarkerSymbol({
-        url: "location.png",  // Pastikan gambar ada di folder 'assets'
-        width: "30px",
-        height: "30px"
-      });
-
-      // Membuat grafik dengan titik dan simbol marker
-      const pointGraphic = new Graphic({
-        geometry: point,
-        symbol: markerSymbol
-      });
-
-      // Menambahkan grafik ke tampilan peta
-      view.graphics.add(pointGraphic);
-
-    } catch (error) {
-      console.error("Error getting location or initializing map:", error);
+  // Buat simbol marker
+  const markerSymbol = new SimpleMarkerSymbol({
+    color: [226, 119, 40], // Warna marker
+    outline: {
+      color: [255, 255, 255], // Warna outline
+      width: 2
     }
-  }
+  });
+
+  // Buat point berdasarkan latitude dan longitude
+  const point = new Point({
+    longitude: this.longtitude,
+    latitude: this.latitude
+  });
+
+  // Buat graphic untuk marker
+  const pointGraphic = new Graphic({
+    geometry: point,
+    symbol: markerSymbol
+  });
+
+  // Tambahkan marker ke peta
+  view.graphics.add(pointGraphic);
+}
+
 }
